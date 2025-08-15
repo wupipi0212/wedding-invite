@@ -1,1 +1,49 @@
+name: Deploy HTML for each branch
+
+on:
+  push:
+    branches:
+      - main      # main 分支
+      - feature   # 你想要保留的其他分支名稱
+      - test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 偵測 HTML 檔案在哪個資料夾
+      - name: Detect HTML folder
+        id: detect
+        run: |
+          if [ -f "./index.html" ]; then
+            echo "publish_dir=./" >> $GITHUB_OUTPUT
+          elif [ -f "./docs/index.html" ]; then
+            echo "publish_dir=./docs" >> $GITHUB_OUTPUT
+          elif [ -f "./public/index.html" ]; then
+            echo "publish_dir=./public" >> $GITHUB_OUTPUT
+          else
+            echo "❌ 找不到 index.html，請檢查專案目錄結構"
+            exit 1
+          fi
+
+      # 判斷要部署到根路徑還是分支資料夾
+      - name: Set destination dir
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "DEST_DIR=." >> $GITHUB_ENV
+          else
+            echo "DEST_DIR=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          fi
+
+      # 上傳到 gh-pages 分支
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ steps.detect.outputs.publish_dir }}
+          destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
+          publish_branch: gh-pages
 
