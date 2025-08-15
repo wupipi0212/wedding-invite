@@ -55,13 +55,21 @@
     background-size: contain;       /* 保持比例完整顯示 */
     background-repeat: no-repeat;   /* 不重複 */
     background-position: center;    /*置中顯示 */
-    background-color: transparent;        /* 空白部分填滿白色 */
-    /*background: white; */
+    background-color: transparent;        /* 空白部分填滿透明 */
   }
 
   .flip-card-back {
     transform: rotateY(180deg);
   }
+
+  @media (max-width: 600px) {
+    .flip-card {
+      width: 90%;       /* 小螢幕時卡片寬度放大到螢幕 90% */
+      height: auto;     /* 高度自動 */
+      aspect-ratio: 500 / 420; /* 保持原比例 */
+    }
+  }
+  
 </style>
 </head>
 <body>
